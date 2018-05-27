@@ -1,0 +1,20 @@
+<!--<ul>
+  <li *ngFor="let topic of topics"> 
+  </li>
+ </ul>
+ <mat-grid-list cols="3" rowHeight="300px"></mat-grid-list>
+   
+<div class="FlexContainer" layout layout-wrap layout-padding layout-align="center">
+    <div *ngFor="let topic of topics">
+        <app-topic-card [topic]="topic" ></app-topic-card>
+    </div>
+</div>
+-->
+
+
+<mat-grid-list class="TopicContainer" cols="2" rowHeight="280px">
+    <mat-grid-tile [style.border-right]="'1px dashed #ddd'" *ngFor="let topic of topicArray">
+        <app-topic-card [topic]="topic"></app-topic-card>
+    </mat-grid-tile>
+</mat-grid-list>
+<!--<a routerLink="/">Back to Ligin..</a>-->

@@ -1,0 +1,53 @@
+
+
+  .TopicTitle {
+    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-left: -12px;
+    font-size: 20px;
+    padding: 10px;
+}
+.TopicContainer {
+  background: hsla(0,0%,0%,.1);
+  width: 100%;
+}
+
+.TopicItem {
+  background: hsla(0,0%,0%,.1);
+  margin: 1em;
+  width: 500px;
+  padding: 1em;
+}
+
+
+.container{
+  width:100px; 
+  margin:0 auto; 
+  margin-top:0px; 
+  text-align: center;
+  zoom: 0.6;
+}
+
+
+.switch_checkbox{display:none;}
+.switchbtn {width: 200px;height: 90px;background-color: #ccc; z-index: 0; margin: 0; padding: 0; cursor: pointer; position: relative; border-radius: 100px;    margin: 0 auto;}
+.switchbtn:before {content: ' ';position: absolute;left: 2px;top: 2px;width: 196px;height: 86px;background: #f5f5f5;z-index: 99;border-radius: 52px;}
+.switchbtn:after {content: 'OFF';height: 54px;width: 85px; border-radius: 52px; background-color: #fff; position: absolute; z-index: 999; top: 2px; left: 2px;
+    text-align: center; box-shadow: 0 2px 5px #999999; padding-top: 30px; font-size: 25px;}
+.switchon, .switchon:before {background-color: #00709D !important;}
+.switchon:after {left: 113px !important;content: 'ON'; color: #00709D;}
+
+example-h2 {
+  margin: 10px;
+}
+
+.example-section {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  height: 60px;
+}
+
+.example-margin {
+  margin: 0 10px;
+}
