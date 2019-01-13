@@ -21,6 +21,15 @@ export class TopicCardComponent implements OnInit {
 
   ngOnInit() {
   }
+  public powerClicked() {
+    console.log('TopicCardComponent '+this.topic.clientId+' Power-Clicked...');
+    let mtopic = new Topic();
+    mtopic.clientId = this.topic.clientId;
+    mtopic.cmd = 'POWER';
+    // toggle state
+    mtopic.cmdPayload = this.topic.POWER==='ON' ? '0' : '1';
+    this.topicCmd$.next(mtopic);
+  }
   public power1Clicked() {
     console.log('TopicCardComponent '+this.topic.clientId+' Power1-Clicked...');
     let mtopic = new Topic();
