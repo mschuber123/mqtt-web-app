@@ -10,6 +10,7 @@ export class Topic {
   clientId: string = 'noname';
   lasttopic: string;
   online: boolean = false;
+  prefix: string;
   cmd: string;
   cmdPayload: string;
 }
@@ -65,9 +66,22 @@ export class TopicListService {
 
   public subscribe() {
     this.mqttService.subscribe();
+    // 03.10.19 mschuber
+    this.getZigbeeDevices();
   }
+
   public disconnect() {
     this.mqttService.disconnect();
+  }
+
+  public getZigbeeDevices() {
+    if (this.connected) {
+      console.log('GET ZIGBEE-DEVICES...');
+      this.mqttMessages$.next({
+        topic: 'zigbee2mqtt/bridge/config/devices',
+        payload: ''
+      });
+    }
   }
 
   private _on_mqtt_connectionState_changed(state: CONNECT_STATE) {
@@ -86,7 +100,7 @@ export class TopicListService {
     if (this.connected) {
       console.log('NEW COMMAND...');
       this.mqttMessages$.next({
-        topic: 'cmnd/' + topicCmd.clientId + '/' + topicCmd.cmd,
+        topic: topicCmd.prefix + '/' + topicCmd.clientId + '/' + topicCmd.cmd,
         payload: topicCmd.cmdPayload
       });
     }
@@ -103,17 +117,36 @@ export class TopicListService {
     } else if (String(msg.payload).startsWith('{')) {
       obj = JSON.parse(msg.payload);
     } else if (postfix != undefined) {
-      //console.log('STEP set obj.'+postfix+'='+msg.payload);
+      console.log('STEP set obj.'+postfix+'='+msg.payload);
       obj[postfix] = msg.payload;
     }
-    this._getKeyFromObj(topic, obj);
-    if (postfix == 'LWT') {
-      topic.online = msg.payload.toLocaleLowerCase() == 'online' ? true : false;
+    if (topic.clientId.indexOf("bridge") != -1 && 
+        obj['type'] == "devices") {
+        Object.keys(obj).forEach(key => {
+          if (obj[key].constructor.toString().indexOf("Array")!=-1)
+            obj[key].forEach(device => {
+              let topic = new Topic;
+              topic.clientId = device['friendly_name'];
+              this._getKeyFromObj(topic, device);
+              console.log(topic);
+              this._updateList(topic);
+              let topics = new Array<string>();
+              let qos = new Array<number>();
+              topics.push("zigbee2mqtt/"+topic.clientId);
+              qos.push(0);
+              this.mqttService.subscribeDetails(topics,qos);
+            });
+        });
     } else {
-      topic.online = true;
+      this._getKeyFromObj(topic, obj);
+      if (postfix == 'LWT') {
+        topic.online = msg.payload.toLocaleLowerCase() == 'online' ? true : false;
+      } else {
+        topic.online = true;
+      }
+      console.log(topic);
+      this._updateList(topic);
     }
-    console.log(topic);
-    this._updateList(topic);
   }
 
   private _getKeyFromObj(topic: Topic, obj: Object) {
@@ -126,7 +159,9 @@ export class TopicListService {
   private _updateList(vorlage: Topic) {
     let topic = this.topicMap.get(vorlage.clientId);
     if (topic != undefined) {
-      Object.keys(vorlage).forEach(key => topic[key] = vorlage[key]);
+      Object.keys(vorlage).forEach(key => {
+        topic[key] = vorlage[key];
+      });    
     } else {
       this.topicMap.set(vorlage.clientId, vorlage);
       if (vorlage.online)

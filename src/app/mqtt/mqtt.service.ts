@@ -138,11 +138,11 @@ export class MqttService {
 
   private _on_publish_received(wireMessage: WireMessage) {
     //console.log('_on_publish_received start... id='+wireMessage.messageIdentifier+
-    //' qos='+wireMessage.payloadMessage.qos);
+    //            ' qos='+wireMessage.payloadMessage.qos);
     let _payload: string = wireMessage.payloadToStr();
     let mqttMessage = new MqttMessage;
     mqttMessage.topic = wireMessage.payloadMessage.destinationName,
-      mqttMessage.payload = _payload.startsWith('{') ? JSON.parse(_payload) : _payload
+    mqttMessage.payload = _payload.startsWith('{') ? JSON.parse(_payload) : _payload
     //console.log('PUB_REC '+mqttMessage.topic+' '+mqttMessage.payload);
 
     switch (wireMessage.payloadMessage.qos) {
@@ -199,6 +199,16 @@ export class MqttService {
     this.sentMessages[mqttPacket.messageIdentifier] = mqttPacket;
     mqttPacket.topics = environment[this.selector].topics;
     mqttPacket.requestedQos = environment[this.selector].qos;
+    this.wsMessages$.next(this.mqttProtocol.encode(mqttPacket));
+  }
+
+  public subscribeDetails(topics :Array<string>, qos : Array<number>) {
+    let mqttPacket =
+      this.mqttProtocol.getMqttPacket(MESSAGE_TYPE.SUBSCRIBE);
+    mqttPacket.messageIdentifier = ++this.nextMessageIdentifier;
+    this.sentMessages[mqttPacket.messageIdentifier] = mqttPacket;
+    mqttPacket.topics = topics;
+    mqttPacket.requestedQos = qos;
     this.wsMessages$.next(this.mqttProtocol.encode(mqttPacket));
   }
 

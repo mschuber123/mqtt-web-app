@@ -21,11 +21,11 @@ export const environment = {
     postfixStatReq: '',
     payloadStatReq: ''  },
   HOME: {
-    url: 'd3NzOi8vbXNjaHViZXIuZGRucy5uZXQ6NzEyMy9tcXR0', 
+    url: 'd3NzOi8vbXNjaHViZXIxMjMuZGRucy5uZXQ6NzEyMy9tcXR0', 
     protocol: 'mqttv3.1',
-    topics: ['tele/#','stat/#'],
-    qos: [0,0],
-    prefixes: ['tele','stat'],
+    topics: ['tele/#','stat/#','zigbee2mqtt/bridge/log'],
+    qos: [0,0,0], // Eintrag pro Topic in topics !!
+    prefixes: ['tele','stat','zigbee2mqtt'],
     prefixCmd: 'cmnd',
     postfixes: ['STATE','RESULT','LWT','INFO1','UPTIME','POWER1','POWER2','Status'],
     postfixStatReq: 'status',

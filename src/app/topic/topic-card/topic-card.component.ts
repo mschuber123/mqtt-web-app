@@ -21,11 +21,22 @@ export class TopicCardComponent implements OnInit {
 
   ngOnInit() {
   }
+  public stateClicked() {
+    console.log('TopicCardComponent '+this.topic.clientId+' State-Clicked...');
+    let mtopic = new Topic();
+    mtopic.clientId = this.topic.clientId;
+    mtopic.cmd = 'set';
+    mtopic.prefix = 'zigbee2mqtt';
+    // toggle state
+    mtopic.cmdPayload = this.topic.state==='ON' ? 'OFF' : 'ON';
+    this.topicCmd$.next(mtopic);
+  }
   public powerClicked() {
     console.log('TopicCardComponent '+this.topic.clientId+' Power-Clicked...');
     let mtopic = new Topic();
     mtopic.clientId = this.topic.clientId;
     mtopic.cmd = 'POWER';
+    mtopic.prefix = 'cmnd';
     // toggle state
     mtopic.cmdPayload = this.topic.POWER==='ON' ? '0' : '1';
     this.topicCmd$.next(mtopic);
@@ -35,6 +46,7 @@ export class TopicCardComponent implements OnInit {
     let mtopic = new Topic();
     mtopic.clientId = this.topic.clientId;
     mtopic.cmd = 'POWER1';
+    mtopic.prefix = 'cmnd';
     // toggle state
     mtopic.cmdPayload = this.topic.POWER1==='ON' ? '0' : '1';
     this.topicCmd$.next(mtopic);
@@ -44,6 +56,7 @@ export class TopicCardComponent implements OnInit {
     let mtopic = new Topic();
     mtopic.clientId = this.topic.clientId;
     mtopic.cmd = 'POWER2';
+    mtopic.prefix = 'cmnd';
     // toggle state
     mtopic.cmdPayload = this.topic.POWER2==='ON' ? '0' : '1';
     this.topicCmd$.next(mtopic);
