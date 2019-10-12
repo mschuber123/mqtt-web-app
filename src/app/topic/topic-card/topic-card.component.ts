@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { TopicListService, Topic } from '../topic-list.service';
-import { MatCardModule } from '@angular/material/card';
 
 
 @Component({
@@ -12,6 +11,11 @@ import { MatCardModule } from '@angular/material/card';
 export class TopicCardComponent implements OnInit {
 
   @Input('topic') topic : any;
+  disabled = false;
+  showTicks = false;
+  step = 1;
+  min = 1;
+  thumbLabel = true;
 
   public topicCmd$ = new BehaviorSubject<Topic>(new Topic);
 
@@ -20,7 +24,27 @@ export class TopicCardComponent implements OnInit {
   }
 
   ngOnInit() {
+    Object.keys(this.topic).forEach(key => {
+      console.log("TOPIC-CARD ngOnInit "+this.topic.clientId+" ["+key+"]="+this.topic[key]);
+    });
+
   }
+    
+  public onInputChange(event: any) {
+    console.log("This is emitted as the thumb slides "+event.value);
+  }
+  
+  public onLuminosityChange(event:any){
+    console.log("This is emitted as the thumb slides "+event.value);
+    let mtopic = new Topic();
+    mtopic.clientId = this.topic.clientId;
+    mtopic.cmd = 'set';
+    mtopic.prefix = 'zigbee2mqtt';
+    // set brightness
+    mtopic.cmdPayload = '{"brightness":'+event.value+'}';
+    this.topicCmd$.next(mtopic);
+  }
+
   public stateClicked() {
     console.log('TopicCardComponent '+this.topic.clientId+' State-Clicked...');
     let mtopic = new Topic();
@@ -61,5 +85,4 @@ export class TopicCardComponent implements OnInit {
     mtopic.cmdPayload = this.topic.POWER2==='ON' ? '0' : '1';
     this.topicCmd$.next(mtopic);
   }
-
 }

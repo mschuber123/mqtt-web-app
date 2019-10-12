@@ -35,7 +35,7 @@ export class TopicListComponent implements OnInit {
     console.log('HELLO TopicListComponent...');
     this.topicListService.connect();
     this.connectedToListService = true;
-  }
+  }s
 
   private _on_mqtt_connectionState_changed(state: CONNECT_STATE) {
     console.log('TopicListComponent::_on_mqtt_connectionState_changed ' + state);

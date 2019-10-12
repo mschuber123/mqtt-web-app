@@ -15,8 +15,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
+import { MatSliderModule } from '@angular/material'
+
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+
 import { RouterModule, Routes } from '@angular/router';
 
 import { TopicCardComponent } from './topic/topic-card/topic-card.component';
@@ -53,6 +56,7 @@ const appRoutes:Routes = [
     MatButtonModule,
     MatToolbarModule,
     MatCardModule,
+    MatSliderModule,
     MatGridListModule,
     MatButtonToggleModule
   ],

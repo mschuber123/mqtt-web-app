@@ -141,9 +141,10 @@ export class MqttService {
     //            ' qos='+wireMessage.payloadMessage.qos);
     let _payload: string = wireMessage.payloadToStr();
     let mqttMessage = new MqttMessage;
-    mqttMessage.topic = wireMessage.payloadMessage.destinationName,
-    mqttMessage.payload = _payload.startsWith('{') ? JSON.parse(_payload) : _payload
-    //console.log('PUB_REC '+mqttMessage.topic+' '+mqttMessage.payload);
+    mqttMessage.topic = wireMessage.payloadMessage.destinationName;
+    mqttMessage.payload = _payload;
+    //mqttMessage.payload = _payload.startsWith('{') ? JSON.parse(_payload) : _payload
+    console.log('PUB_REC '+mqttMessage.topic+' PAYLOAD-STRING '+_payload);
 
     switch (wireMessage.payloadMessage.qos) {
       case "undefined":

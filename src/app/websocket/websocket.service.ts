@@ -35,9 +35,9 @@ export class WebsocketService {
     let observer = {
       next: (data : ArrayBuffer) => {
         if (this.socket.readyState === WebSocket.OPEN) {
-          //console.log('SEND DATA...');
-          console.log(data);
-          console.log(String.fromCharCode.apply(null,new Uint8Array(data)));
+          console.log('SEND DATA...');
+          //console.log('SEND='+data);
+          //console.log(String.fromCharCode.apply(null,new Uint8Array(data)));
           this.socket.send(data);
         }
       },

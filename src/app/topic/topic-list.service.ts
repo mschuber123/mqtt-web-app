@@ -1,3 +1,4 @@
+  
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { UserService } from '../user.service';
@@ -18,6 +19,7 @@ export class Topic {
 @Injectable({
   providedIn: 'root'
 })
+
 
 export class TopicListService {
 
@@ -98,7 +100,7 @@ export class TopicListService {
 
   public _on_new_command(topicCmd: Topic) {
     if (this.connected) {
-      console.log('NEW COMMAND...');
+      console.log('NEW COMMAND '+ topicCmd.clientId + '/' + topicCmd.cmd);
       this.mqttMessages$.next({
         topic: topicCmd.prefix + '/' + topicCmd.clientId + '/' + topicCmd.cmd,
         payload: topicCmd.cmdPayload
@@ -116,6 +118,9 @@ export class TopicListService {
       obj = msg.payload;
     } else if (String(msg.payload).startsWith('{')) {
       obj = JSON.parse(msg.payload);
+      Object.keys(obj).forEach(key => {
+        topic[key] = obj[key];
+      });
     } else if (postfix != undefined) {
       console.log('STEP set obj.'+postfix+'='+msg.payload);
       obj[postfix] = msg.payload;
@@ -125,14 +130,9 @@ export class TopicListService {
         Object.keys(obj).forEach(key => {
           if (obj[key].constructor.toString().indexOf("Array")!=-1)
             obj[key].forEach(device => {
-              let topic = new Topic;
-              topic.clientId = device['friendly_name'];
-              this._getKeyFromObj(topic, device);
-              console.log(topic);
-              this._updateList(topic);
               let topics = new Array<string>();
               let qos = new Array<number>();
-              topics.push("zigbee2mqtt/"+topic.clientId);
+              topics.push("zigbee2mqtt/"+device['friendly_name']);
               qos.push(0);
               this.mqttService.subscribeDetails(topics,qos);
             });
@@ -144,16 +144,17 @@ export class TopicListService {
       } else {
         topic.online = true;
       }
-      console.log(topic);
+      //console.log(topic);
       this._updateList(topic);
     }
   }
 
   private _getKeyFromObj(topic: Topic, obj: Object) {
     Object.keys(obj).forEach(key =>
-      typeof obj[key] === 'string' ?
-        topic[key] = obj[key] :
-        this._getKeyFromObj(topic, obj[key]));
+        typeof obj[key] === 'string' ?
+          topic[key] = obj[key] :
+          this._getKeyFromObj(topic, obj[key])
+    );
   }
 
   private _updateList(vorlage: Topic) {
@@ -170,8 +171,11 @@ export class TopicListService {
             topic: 'cmnd/' + vorlage.clientId + '/status',
             payload: '11'
           });
+      topic = this.topicMap.get(vorlage.clientId);
     }
-    console.log('topicListService::_updateList #' + this.topicMap.size);
+    Object.keys(topic).forEach(key => {
+      console.log("UPDATE-TOPIC "+topic.clientId+"["+key+"]="+vorlage[key]);
+    });   
     this.topicArray$.next(Array.from(this.topicMap.values()));
   }
 

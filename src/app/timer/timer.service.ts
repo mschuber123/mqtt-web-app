@@ -12,6 +12,7 @@ export class TimerService {
   public expiredValue : string = 'Your session has expired!!';
   public warn$ : Observable<number>;
   public expired$: Observable<string>;
+  public intervalValue : number = 1000;
 
   constructor(){
     this.warn$ = new Observable(observer => {
@@ -27,7 +28,7 @@ export class TimerService {
       this.currentCount = countdownFrom;
       this.initialCountValue = countdownFrom;
       this.warnAt = warnAt;
-      this.tickerInterval = setInterval(this.tick.bind(this), 1000);
+      this.tickerInterval = setInterval(this.tick.bind(this), this.intervalValue);
   }
 
   public clear(){
@@ -55,4 +56,5 @@ export class TimerService {
   }
   private _emit_expired(value : string) {
   }
+
 }
