@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "hello-app": {
+    "mqtt-web-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/hello-app",
+            "outputPath": "dist/",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -67,18 +67,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "hello-app:build"
+            "browserTarget": "mqtt-web-app:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "hello-app:build:production"
+              "browserTarget": "mqtt-web-app:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "hello-app:build"
+            "browserTarget": "mqtt-web-app:build"
           }
         },
         "test": {
@@ -115,15 +115,15 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "hello-app:serve"
+            "devServerTarget": "mqtt-web-app:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "hello-app:serve:production"
+              "devServerTarget": "mqtt-web-app:serve:production"
             }
           }
         }
       }
     }},
-  "defaultProject": "hello-app"
+  "defaultProject": "mqtt-web-app"
 }
