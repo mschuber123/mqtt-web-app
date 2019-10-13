@@ -16,6 +16,7 @@ export class TopicListComponent implements OnInit {
   public topicArray: Array<any>;
   public mqttConnectionState$: BehaviorSubject<CONNECT_STATE>;
   private connectedToListService : boolean = false;
+  public breakpoint : number = 2;
 
   constructor(private topicListService: TopicListService) {
     this.mqttConnectionState$ = this.topicListService.mqttConnectionState$;
@@ -32,7 +33,9 @@ export class TopicListComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('HELLO TopicListComponent...');
+    let innerWidth = window.innerWidth;
+    console.log('HELLO TopicListComponent... innerWidth='+innerWidth);
+    this.breakpoint = (innerWidth <= 600) ? 1 : 2;
     this.topicListService.connect();
     this.connectedToListService = true;
   }s
