@@ -12,7 +12,7 @@
 -->
 
 
-<mat-grid-list class="TopicContainer" cols="breakpoint" rowHeight="280px">
+<mat-grid-list class="TopicContainer" [cols]="breakpoint" rowHeight="180px">
     <mat-grid-tile [style.border-right]="'1px dashed #ddd'" *ngFor="let topic of topicArray">
         <app-topic-card [topic]="topic"></app-topic-card>
     </mat-grid-tile>
