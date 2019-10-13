@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatSliderModule } from '@angular/material'
+import { ColorPickerModule } from 'ngx-color-picker';
 
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -58,7 +59,8 @@ const appRoutes:Routes = [
     MatCardModule,
     MatSliderModule,
     MatGridListModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    ColorPickerModule
   ],
   providers: [
     WebsocketService,

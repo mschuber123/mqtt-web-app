@@ -51,3 +51,35 @@ example-h2 {
 .example-margin {
   margin: 0 10px;
 }
+
+.input {
+  background-color: red;
+  width: 150px;
+  margin-bottom: 16px;
+}
+
+.cmyk-text {
+  float: left;
+
+  width: 72px;
+  height: 72px;
+
+  font-weight: bolder;
+  line-height: 72px;
+  text-align: center;
+  text-shadow: 1px 1px 2px #bbb;
+}
+
+.color-box {
+  width: 100px;
+  height: 25px;
+  margin: 16px auto;
+
+  cursor: pointer;
+}
+
+.change-me {
+  cursor: pointer;
+  font-size: 30px;
+  font-weight: bolder;
+}
