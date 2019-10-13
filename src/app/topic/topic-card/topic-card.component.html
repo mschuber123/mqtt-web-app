@@ -4,7 +4,7 @@
         <mat-card-title class="TopicTitle"> {{topic.clientId}} </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <mat-grid-list *ngIf="topic.POWER1" cols="2" rowHeight="30px">
+        <mat-grid-list *ngIf="topic.POWER1" cols="2" rowHeight="20px">
             <mat-grid-tile [style.border-right]="'1px dashed #ddd'">
                 <mat-checkbox [checked]="topic.POWER1==='ON'" (click)="power1Clicked()" class="example-margin">POWER1</mat-checkbox> 
             </mat-grid-tile>
@@ -12,12 +12,12 @@
                 <mat-checkbox [checked]="topic.POWER2==='ON'" (click)="power2Clicked()" class="example-margin">POWER2</mat-checkbox> 
             </mat-grid-tile>
         </mat-grid-list>
-        <mat-grid-list *ngIf="topic.POWER" cols="1" rowHeight="30px">
+        <mat-grid-list *ngIf="topic.POWER" cols="1" rowHeight="20px">
             <mat-grid-tile [style.border-right]="'1px dashed #ddd'">
                 <mat-checkbox [checked]="topic.POWER==='ON'" (click)="powerClicked()" class="example-margin">POWER</mat-checkbox> 
             </mat-grid-tile>
         </mat-grid-list>
-        <mat-grid-list *ngIf="topic.state" cols="1" rowHeight="30px">
+        <mat-grid-list *ngIf="topic.state" cols="1" rowHeight="20px">
             <mat-grid-tile [style.border-right]="'1px dashed #ddd'">
                 <mat-checkbox [checked]="topic.state==='ON'" (click)="stateClicked()" class="example-margin">STATE</mat-checkbox> 
             </mat-grid-tile>
