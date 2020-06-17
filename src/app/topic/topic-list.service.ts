@@ -10,7 +10,6 @@ import { post } from 'selenium-webdriver/http';
 export class Topic {
   clientId: string = 'noname';
   lasttopic: string;
-  online: boolean = false;
   prefix: string;
   cmd: string;
   cmdPayload: string;
@@ -130,19 +129,19 @@ export class TopicListService {
         Object.keys(obj).forEach(key => {
           if (obj[key].constructor.toString().indexOf("Array")!=-1)
             obj[key].forEach(device => {
+              console.log('STEP new ZIGBEE-Device '+device['friendly_name']);
               let topics = new Array<string>();
               let qos = new Array<number>();
-              topics.push("zigbee2mqtt/"+device['friendly_name']);
+              topics.push("zigbee2mqtt/"+device['friendly_name']+"/#");
               qos.push(0);
               this.mqttService.subscribeDetails(topics,qos);
             });
         });
     } else {
       this._getKeyFromObj(topic, obj);
-      if (postfix == 'LWT') {
-        topic.online = msg.payload.toLocaleLowerCase() == 'online' ? true : false;
-      } else {
-        topic.online = true;
+      if (postfix == 'LWT' || postfix == 'availability') {
+        console.log("STEP SET-AVAILABILITY "+topic.clientId+"="+msg.payload.toLocaleLowerCase());
+        topic['availability'] = msg.payload.toLocaleLowerCase();
       }
       //console.log(topic);
       this._updateList(topic);
@@ -165,7 +164,7 @@ export class TopicListService {
       });    
     } else {
       this.topicMap.set(vorlage.clientId, vorlage);
-      if (vorlage.online)
+      if (vorlage['availability']==='online')
         this.mqttMessages$.next(
           {
             topic: 'cmnd/' + vorlage.clientId + '/status',

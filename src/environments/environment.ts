@@ -31,7 +31,7 @@ export const environment = {
     qos: [0,0,0], // Eintrag pro Topic in topics !!
     prefixes: ['tele','stat','zigbee2mqtt'],
     prefixCmd: 'cmnd',
-    postfixes: ['STATE','RESULT','LWT','INFO1','UPTIME','POWER1','POWER2','Status'],
+    postfixes: ['STATE','RESULT','LWT','INFO1','UPTIME','POWER1','POWER2','Status','availability'],
     postfixStatReq: 'status',
     payloadStatReq: '0'
   }

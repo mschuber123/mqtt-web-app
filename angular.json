@@ -30,7 +30,7 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": ["../node_modules/cie-rgb-color-converter/ColorConverter.js"]
+            "scripts": ["node_modules/cie-rgb-color-converter/ColorConverter.js"]
           },
           "configurations": {
             "production": {
