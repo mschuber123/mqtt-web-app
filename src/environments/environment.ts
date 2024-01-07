@@ -25,7 +25,7 @@ export const environment = {
     postfixStatReq: '',
     payloadStatReq: ''  },
   HOME: {
-    url: 'd3NzOi8vbXNjaHViZXIxMjMuZGRucy5uZXQ6NzEyMy9tcXR0', 
+    url: 'd3NzOi8vYWgubXNjaHViZXJ0MTIzLmRlOjcxMjMvbXF0dA==', 
     protocol: 'mqttv3.1',
     topics: ['tele/#','stat/#','zigbee2mqtt/bridge/log'],
     qos: [0,0,0], // Eintrag pro Topic in topics !!
