@@ -1,11 +1,9 @@
-  
+
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { UserService } from '../user.service';
 import { MqttService, MqttMessage, CONNECT_STATE } from '../mqtt/mqtt.service';
 import { environment } from '../../environments/environment';
-import { post } from 'selenium-webdriver/http';
-
 
 export class Topic {
   clientId: string = 'noname';
@@ -55,11 +53,11 @@ export class TopicListService {
     if (this.user.getUserLoggedIn()) {
       this.mqttService.wsConnect();
       this.mqttMessages$ = this.mqttService.mqttConnect();
-      this.mqttMessages$.subscribe(
-        msg => this._on_message_receive(msg),
-        err => this._on_error(err),
-        () => this._on_close()
-      )
+      this.mqttMessages$.subscribe({
+        next: (msg) => this._on_message_receive(msg),
+        error: (err) => this._on_error(err),
+        complete: () => this._on_close()
+      })
       this.connected = true;
     } else
       console.log('No User logged in !!');
@@ -99,7 +97,7 @@ export class TopicListService {
 
   public _on_new_command(topicCmd: Topic) {
     if (this.connected) {
-      console.log('NEW COMMAND '+ topicCmd.clientId + '/' + topicCmd.cmd);
+      console.log('NEW COMMAND ' + topicCmd.clientId + '/' + topicCmd.cmd);
       this.mqttMessages$.next({
         topic: topicCmd.prefix + '/' + topicCmd.clientId + '/' + topicCmd.cmd,
         payload: topicCmd.cmdPayload
@@ -108,121 +106,140 @@ export class TopicListService {
   }
 
   private _on_message_receive(msg: MqttMessage) {
-    let topic = new Topic;
-    topic.lasttopic = msg.topic;
     let postfix = this._getPostfixFromTopic(msg.topic);
-    topic.clientId = this._getClientIdFromTopic(msg.topic);
+    let clientId = this._getClientIdFromTopic(msg.topic);
+    let topics = new Array<Topic>();
+    console.log('STEP TopicList::_on_message_receive...postfix=' + postfix + ' clientId=' + clientId);
+    var msgToken = [];
     var obj = {};
     if (typeof msg.payload === 'object') {
       obj = msg.payload;
+      msgToken.push(obj);
+    } else if (String(msg.payload).startsWith('[')) {
+      var parts = JSON.parse(msg.payload);
+      parts.forEach(element => {
+        msgToken.push(element);
+      });
     } else if (String(msg.payload).startsWith('{')) {
       obj = JSON.parse(msg.payload);
-      Object.keys(obj).forEach(key => {
-        topic[key] = obj[key];
-      });
+      msgToken.push(obj);
     } else if (postfix != undefined) {
-      console.log('STEP set obj.'+postfix+'='+msg.payload);
+      console.log('STEP set obj.' + postfix + '=' + msg.payload);
       obj[postfix] = msg.payload;
+      msgToken.push(obj);
     }
-    if (topic.clientId.indexOf("bridge") != -1 && 
-        obj['type'] == "devices") {
-        Object.keys(obj).forEach(key => {
-          if (obj[key].constructor.toString().indexOf("Array")!=-1)
-            obj[key].forEach(device => {
-              console.log('STEP new ZIGBEE-Device '+device['friendly_name']);
-              let topics = new Array<string>();
-              let qos = new Array<number>();
-              topics.push("zigbee2mqtt/"+device['friendly_name']+"/#");
-              qos.push(0);
-              this.mqttService.subscribeDetails(topics,qos);
-            });
-        });
-    } else {
-      this._getKeyFromObj(topic, obj);
+    msgToken.forEach(obj => {
+      let topic = new Topic;
+      topic.lasttopic = msg.topic;
+      Object.keys(obj).forEach(key => {
+          topic[key] = obj[key];
+      });
+      topic.clientId = (topic['friendly_name'] === undefined) ?
+         clientId : topic['friendly_name'];
+      topics.push(topic);
+      //this._getKeyFromObj(topic, token);
+    });
+    console.log('STEP TopicList #msgToken=' + msgToken.length+' #Topic='+topics.length);
+
+    // subscribe for new Zigbee devices
+    if (clientId.indexOf("bridge") != -1) {
+      let device_names = new Array<string>();
+      let qos = new Array<number>();
+      topics.forEach(element => {
+        if (element['friendly_name'] !== undefined) {
+          console.log('STEP NEW ZIGBEE-Device ' + element['friendly_name']);
+          device_names.push(element['friendly_name']);
+          qos.push(0);
+        }
+      });
+      this.mqttService.subscribeDetails(device_names, qos);
+    } 
+    // update list of topics
+    topics.forEach(topic => {
       if (postfix == 'LWT' || postfix == 'availability') {
-        console.log("STEP SET-AVAILABILITY "+topic.clientId+"="+msg.payload.toLocaleLowerCase());
-        topic['availability'] = msg.payload.toLocaleLowerCase();
+        console.log("STEP SET-AVAILABILITY " + topic.clientId + "=" + msg.payload.toLocaleLowerCase());
+       topic['availability'] = msg.payload.toLocaleLowerCase();
       }
       //console.log(topic);
       this._updateList(topic);
-    }
+    })
   }
 
   private _getKeyFromObj(topic: Topic, obj: Object) {
-    Object.keys(obj).forEach(key =>
-        typeof obj[key] === 'string' ?
-          topic[key] = obj[key] :
-          this._getKeyFromObj(topic, obj[key])
-    );
-  }
+  Object.keys(obj).forEach(key =>
+    typeof obj[key] === 'string' ?
+      topic[key] = obj[key] :
+      this._getKeyFromObj(topic, obj[key])
+  );
+}
 
   private _updateList(vorlage: Topic) {
-    let topic = this.topicMap.get(vorlage.clientId);
-    if (topic != undefined) {
-      Object.keys(vorlage).forEach(key => {
-        topic[key] = vorlage[key];
-      });    
-    } else {
-      this.topicMap.set(vorlage.clientId, vorlage);
-      if (vorlage['availability']==='online')
-        this.mqttMessages$.next(
-          {
-            topic: 'cmnd/' + vorlage.clientId + '/status',
-            payload: '11'
-          });
-      topic = this.topicMap.get(vorlage.clientId);
-    }
-    Object.keys(topic).forEach(key => {
-      console.log("UPDATE-TOPIC "+topic.clientId+"["+key+"]="+vorlage[key]);
-    });   
-    this.topicArray$.next(Array.from(this.topicMap.values()));
+  let topic = this.topicMap.get(vorlage.clientId);
+  if (topic != undefined) {
+    Object.keys(vorlage).forEach(key => {
+      topic[key] = vorlage[key];
+    });
+  } else {
+    this.topicMap.set(vorlage.clientId, vorlage);
+    if (vorlage['availability'] === 'online')
+      this.mqttMessages$.next(
+        {
+          topic: 'cmnd/' + vorlage.clientId + '/status',
+          payload: '11'
+        });
+    topic = this.topicMap.get(vorlage.clientId);
   }
+  Object.keys(topic).forEach(key => {
+    console.log("UPDATE-TOPIC " + topic.clientId + "[" + key + "]=" + vorlage[key]);
+  });
+  this.topicArray$.next(Array.from(this.topicMap.values()));
+}
 
   private _getClientIdFromTopic(topic: string): string {
-    let result = this._stripPrefixesFromTopic(topic);
-    result = this._stripPostfixesFromTopic(result);
-    return result;
-  }
+  let result = this._stripPrefixesFromTopic(topic);
+  result = this._stripPostfixesFromTopic(result);
+  return result;
+}
   private _stripPrefixesFromTopic(topic: string): string {
-    let result = topic;
-    environment[this.selector].prefixes.forEach(prefix => {
-      prefix += '/';
-      result = String(result).replace(prefix, '');
-    });
-    return result;
-  }
+  let result = topic;
+  environment[this.selector].prefixes.forEach(prefix => {
+    prefix += '/';
+    result = String(result).replace(prefix, '');
+  });
+  return result;
+}
 
   private _stripPostfixesFromTopic(topic: string): string {
-    let result = topic;
-    let tokens = result.split('/');
-    let lastToken = tokens[tokens.length - 1];
-    environment[this.selector].postfixes.forEach(postfix => {
-      if (String(lastToken.toUpperCase).startsWith(postfix.toUpperCase)) {
-        result = result.replace('/' + lastToken, '');
-      }
-    });
-    return result;
-  }
+  let result = topic;
+  let tokens = result.split('/');
+  let lastToken = tokens[tokens.length - 1];
+  environment[this.selector].postfixes.forEach(postfix => {
+    if (String(lastToken.toUpperCase).startsWith(postfix.toUpperCase)) {
+      result = result.replace('/' + lastToken, '');
+    }
+  });
+  return result;
+}
 
   private _getPostfixFromTopic(topic: string): string {
-    var result;
-    environment[this.selector].postfixes.forEach(postfix => {
-      if (String(topic).endsWith(postfix)) {
-        //console.log('STEP topic.'+topic+'.endswith.'+postfix);
-        result = postfix;
-      }
-    });
-    return result;
-  }
+  var result;
+  environment[this.selector].postfixes.forEach(postfix => {
+    if (String(topic).endsWith(postfix)) {
+      //console.log('STEP topic.'+topic+'.endswith.'+postfix);
+      result = postfix;
+    }
+  });
+  return result;
+}
 
   private _on_error(err) {
-    console.log('topicListService ERROR ' + err);
-  }
+  console.log('topicListService ERROR ' + err);
+}
 
   private _on_close() {
-    console.log('topicListService COMPLETED !!');
-    this.connected = false;
-    this.topicMap.clear();
-    this.topicArray$.next(Array.from(this.topicMap.values()));
-  }
+  console.log('topicListService COMPLETED !!');
+  this.connected = false;
+  this.topicMap.clear();
+  this.topicArray$.next(Array.from(this.topicMap.values()));
+}
 }
