@@ -2,7 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { NgModule } from '@angular/core';
-import { Http, HttpModule } from '@angular/http';
+import {HttpClientModule} from '@angular/common/http'
+import {HttpClient} from '@angular/common/http'
 import { WebsocketService } from './websocket/websocket.service';
 import { MqttService } from './mqtt/mqtt.service';
 import { MqttprotocolService } from './protocol/mqttprotocol.service';
@@ -52,7 +53,7 @@ const appRoutes:Routes = [
     BrowserModule,
     BrowserAnimationsModule,
     RouterModule.forRoot(appRoutes),
-    HttpModule,
+    HttpClientModule,
     MatCheckboxModule,
     MatButtonModule,
     MatToolbarModule,
