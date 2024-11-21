@@ -6,6 +6,7 @@ import { MqttprotocolService, MESSAGE_TYPE, CONNACK_RC, WireMessage, Message } f
 import { TimerService } from '../timer/timer.service';
 import { UserService } from '../user.service';
 
+
 export enum CONNECT_STATE {
   NONE,
   CONNECTING,
@@ -120,8 +121,8 @@ export class MqttService {
           break;
 
         case MESSAGE_TYPE.PUBLISH:
-          //console.log('PUBLISH-DATA');
-          //console.log(data);
+          console.log('PUBLISH-DATA');
+          console.log(data);
           this._on_publish_received(mqttPacket);
           break;
 
@@ -137,8 +138,8 @@ export class MqttService {
   }
 
   private _on_publish_received(wireMessage: WireMessage) {
-    //console.log('_on_publish_received start... id='+wireMessage.messageIdentifier+
-    //            ' qos='+wireMessage.payloadMessage.qos);
+    console.log('_on_publish_received start... id='+wireMessage.messageIdentifier+
+                ' qos='+wireMessage.payloadMessage.qos);
     let _payload: string = wireMessage.payloadToStr();
     let mqttMessage = new MqttMessage;
     mqttMessage.topic = wireMessage.payloadMessage.destinationName;
@@ -152,7 +153,7 @@ export class MqttService {
         //this._receiveMessage(wireMessage);
         break;
 
-      case 1:
+      case 1: 
         let pubAckMessage = new WireMessage(MESSAGE_TYPE.PUBACK);
         pubAckMessage.messageIdentifier = wireMessage.messageIdentifier;
         this.wsMessages$.next(this.mqttProtocol.encode(pubAckMessage));
@@ -214,7 +215,7 @@ export class MqttService {
   }
 
   private createSubject(): BehaviorSubject<MqttMessage> {
-    let observable = Observable.create(
+    let observable = new Observable(
       (observer: Observer<MqttMessage>) => {
         this.mqtt_publish_receive = observer.next.bind(observer);
         this.mqtt_error = observer.error.bind(observer);
