@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, noop } from 'rxjs';
 import { UserService } from '../user.service';
 import { MqttService, MqttMessage, CONNECT_STATE } from '../mqtt/mqtt.service';
 import { environment } from '../../environments/environment';
@@ -66,7 +66,7 @@ export class TopicListService {
   public subscribe() {
     this.mqttService.subscribe();
     // 03.10.19 mschuber
-    this.getZigbeeDevices();
+    //this.getZigbeeDevices();
   }
 
   public disconnect() {
@@ -77,7 +77,17 @@ export class TopicListService {
     if (this.connected) {
       console.log('GET ZIGBEE-DEVICES...');
       this.mqttMessages$.next({
-        topic: 'zigbee2mqtt/bridge/config/devices',
+        topic: 'zigbee2mqtt/bridge/logging',
+        payload: ''
+      });
+    }
+  }
+
+  public getZigbeeDevicesDetails(topic: Topic) {
+    if (this.connected) {
+      console.log('GET ZIGBEE-DEVICES-DETAILS...'+topic.clientId);
+      this.mqttMessages$.next({
+        topic: 'zigbee2mqtt/'+topic.clientId+'/#',
         payload: ''
       });
     }
@@ -132,27 +142,29 @@ export class TopicListService {
       let topic = new Topic;
       topic.lasttopic = msg.topic;
       Object.keys(obj).forEach(key => {
-          topic[key] = obj[key];
+          topic[key] = obj[key] + '';
       });
       topic.clientId = (topic['friendly_name'] === undefined) ?
          clientId : topic['friendly_name'];
       topics.push(topic);
-      //this._getKeyFromObj(topic, token);
+      this._getKeyFromObj(topic, obj);
     });
     console.log('STEP TopicList #msgToken=' + msgToken.length+' #Topic='+topics.length);
 
     // subscribe for new Zigbee devices
     if (clientId.indexOf("bridge") != -1) {
-      let device_names = new Array<string>();
+      let device_topics = new Array<string>();
       let qos = new Array<number>();
       topics.forEach(element => {
         if (element['friendly_name'] !== undefined) {
           console.log('STEP NEW ZIGBEE-Device ' + element['friendly_name']);
-          device_names.push(element['friendly_name']);
+          device_topics.push('zigbee2mqtt/'+element['friendly_name']);
+          qos.push(0);
+          device_topics.push('zigbee2mqtt/'+element['friendly_name']+'/availability');
           qos.push(0);
         }
       });
-      this.mqttService.subscribeDetails(device_names, qos);
+      this.mqttService.subscribeDetails(device_topics, qos);
     } 
     // update list of topics
     topics.forEach(topic => {
@@ -166,31 +178,44 @@ export class TopicListService {
   }
 
   private _getKeyFromObj(topic: Topic, obj: Object) {
-  Object.keys(obj).forEach(key =>
-    typeof obj[key] === 'string' ?
-      topic[key] = obj[key] :
-      this._getKeyFromObj(topic, obj[key])
-  );
-}
+  Object.keys(obj).forEach(key => {
+    typeof obj[key] !== 'object' ?
+      topic[key] = obj[key] + '' :
+      obj[key] !== null ? 
+         this._getKeyFromObj(topic, obj[key]) :
+         noop;
+    });
+  }
 
   private _updateList(vorlage: Topic) {
-  let topic = this.topicMap.get(vorlage.clientId);
-  if (topic != undefined) {
-    Object.keys(vorlage).forEach(key => {
-      topic[key] = vorlage[key];
+
+  var found = this.topicMap.has(vorlage.clientId);
+    
+  var topic : Topic;
+  topic = found ? this.topicMap.get(vorlage.clientId) : new Topic;
+  
+  this._getKeyFromObj(topic, vorlage)
+
+  // new Topic ?
+  if (! found) {
+    this.topicMap.set(topic.clientId, topic);
+    Object.keys(topic).forEach(key => {
+      console.log("NEW-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
+      if (topic[key] === "genOnOff" || key === "POWER" || key === "POWER1" ) 
+        topic['onOffDevice'] = true;
     });
-  } else {
-    this.topicMap.set(vorlage.clientId, vorlage);
-    if (vorlage['availability'] === 'online')
+
+    if (topic['availability'] === 'online') {
       this.mqttMessages$.next(
         {
           topic: 'cmnd/' + vorlage.clientId + '/status',
           payload: '11'
         });
-    topic = this.topicMap.get(vorlage.clientId);
+    }
   }
-  Object.keys(topic).forEach(key => {
-    console.log("UPDATE-TOPIC " + topic.clientId + "[" + key + "]=" + vorlage[key]);
+
+  Object.keys(vorlage).forEach(key => {
+    console.log("UPDATE-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
   });
   this.topicArray$.next(Array.from(this.topicMap.values()));
 }
