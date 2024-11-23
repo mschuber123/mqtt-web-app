@@ -1,0 +1,50 @@
+
+
+
+PS C:\mschuber\development\mqtt-web-app\src\app> ng build --output-path dist --base-href /mqtt-web-app/
+
+
+Workspace extension with invalid name (defaultProject) found.
+One or more browsers which are configured in the project's Browserslist configuration will be ignored as ES5 output is not supported by the Angular CLI.
+Ignored browsers: kaios 2.5, op_mini all
+- Generating browser application bundles (phase: setup)...    TypeScript compiler options "target" and "useDefineForClassFields" are set to "ES2022" and "false" respectively by the Angular CLI. To control ECMA version and features use the Browserslist configuration. For more information, see https://angular.io/guide/build#configuring-browser-compatibility
+    NOTE: You can set the "target" to "ES2022" in the project's tsconfig to remove this warning.
+√ Browser application bundle generation complete.
+√ Copying assets complete.
+√ Index html generation complete.
+
+Initial chunk files | Names         |  Raw size | Estimated transfer size
+main.js             | main          | 609.45 kB |               147.10 kB
+styles.css          | styles        |  84.36 kB |                 7.79 kB
+polyfills.js        | polyfills     |  54.02 kB |                17.20 kB
+scripts.js          | scripts       |   2.53 kB |                 1.02 kB
+runtime.js          | runtime       |   1.05 kB |               599 bytes
+
+                    | Initial total | 751.40 kB |               173.70 kB
+
+Build at: 2024-11-23T14:53:46.048Z - Hash: 87d3157738b17f56 - Time: 3248ms
+
+Warning: C:/mschuber/development/mqtt-web-app/src/environments/environment.prod.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+
+PS C:\mschuber\development\mqtt-web-app\src\app>
+PS C:\mschuber\development\mqtt-web-app\src\app>
+PS C:\mschuber\development\mqtt-web-app\src\app> cd ..
+PS C:\mschuber\development\mqtt-web-app\src> cd ..
+
+
+PS C:\mschuber\development\mqtt-web-app> npx ngh
+404.html file created
+.nojekyll file created
+🚀 Uploading via git, please wait...
+Cloning https://github.com/mschuber123/mqtt-web-app into C:\mschuber\development\mqtt-web-app\node_modules\.cache\gh-pages\https!github.com!mschuber123!mqtt-web-app
+Cleaning
+Fetching origin
+Checking out origin/gh-pages
+Removing files
+Copying files
+Adding all
+Committing
+Pushing
+🌟 Successfully published via angular-cli-ghpages! Have a nice day!
