@@ -64,16 +64,11 @@ export class TopicCardComponent implements OnInit {
     Object.keys(this.topic).forEach(key => {
       console.log("TOPIC-CARD ngOnInit "+this.topic.clientId+" ["+key+"]="+this.topic[key]);
       if (key == "color") {
-        let colorObj = this.topic[key] + '';
+        let colorObj = this.topic[key];
         Object.keys(colorObj).forEach(colKey => {
           this.topic['color.'+colKey] = colorObj[colKey];
           console.log("COLOR "+colKey+" = "+colorObj[colKey]);
         });
-        let rgb = ColorConverter.xyBriToRgb(colorObj["x"],colorObj["y"],colorObj["saturation"]);
-        console.log("COLOR-RGB "+rgb.r+"/"+rgb.g+"/"+rgb.b);
-        this.color1 = 'rgb('+rgb.r+','+rgb.g+','+rgb.b+')';
-        console.log("COLOR1 "+this.color1);
-        this.topic.colorRGB = this.color1;
       }
     });
   }
@@ -162,34 +157,4 @@ export class TopicCardComponent implements OnInit {
     }
     return '';
   }
-}
-
-class ColorConverter {
-  static xyBriToRgb(x,y,bri){
-
-    console.log("ColorConverter.xyBriToRgb x="+x+" y="+y+" bri="+bri);
-
-      function getReversedGammaCorrectedValue(value){
-          return value <= 0.0031308 ? 12.92 * value : (1.0 + 0.055) * Math.pow(value, (1.0 / 2.4)) - 0.055;
-      }
-
-          let xy = {
-              x: x,
-              y: y
-          };
-
-          let z = 1.0 - xy.x - xy.y;
-          let Y = bri / 255;
-          let X = (Y / xy.y) * xy.x;
-          let Z = (Y / xy.y) * z;
-          let r = X * 1.656492 - Y * 0.354851 - Z * 0.255038;
-          let g = -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
-          let b =  X * 0.051713 - Y * 0.121364 + Z * 1.011530;
-
-          r = getReversedGammaCorrectedValue(r);
-          g = getReversedGammaCorrectedValue(g);
-          b = getReversedGammaCorrectedValue(b);
-
-          return {r: parseInt((r * 255).toString()), g: parseInt((g * 255).toString()), b: parseInt((b *255).toString())};
-      }
 }

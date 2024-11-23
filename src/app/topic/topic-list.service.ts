@@ -85,9 +85,9 @@ export class TopicListService {
 
   public getZigbeeDevicesDetails(topic: Topic) {
     if (this.connected) {
-      console.log('GET ZIGBEE-DEVICES-DETAILS...'+topic.clientId);
+      console.log('GET ZIGBEE-DEVICES-DETAILS...' + topic.clientId);
       this.mqttMessages$.next({
-        topic: 'zigbee2mqtt/'+topic.clientId+'/#',
+        topic: 'zigbee2mqtt/' + topic.clientId + '/#',
         payload: ''
       });
     }
@@ -142,14 +142,14 @@ export class TopicListService {
       let topic = new Topic;
       topic.lasttopic = msg.topic;
       Object.keys(obj).forEach(key => {
-          topic[key] = obj[key] + '';
+        topic[key] = obj[key] + '';
       });
       topic.clientId = (topic['friendly_name'] === undefined) ?
-         clientId : topic['friendly_name'];
+        clientId : topic['friendly_name'];
       topics.push(topic);
       this._getKeyFromObj(topic, obj);
     });
-    console.log('STEP TopicList #msgToken=' + msgToken.length+' #Topic='+topics.length);
+    console.log('STEP TopicList #msgToken=' + msgToken.length + ' #Topic=' + topics.length);
 
     // subscribe for new Zigbee devices
     if (clientId.indexOf("bridge") != -1) {
@@ -158,19 +158,19 @@ export class TopicListService {
       topics.forEach(element => {
         if (element['friendly_name'] !== undefined) {
           console.log('STEP NEW ZIGBEE-Device ' + element['friendly_name']);
-          device_topics.push('zigbee2mqtt/'+element['friendly_name']);
+          device_topics.push('zigbee2mqtt/' + element['friendly_name']);
           qos.push(0);
-          device_topics.push('zigbee2mqtt/'+element['friendly_name']+'/availability');
+          device_topics.push('zigbee2mqtt/' + element['friendly_name'] + '/availability');
           qos.push(0);
         }
       });
       this.mqttService.subscribeDetails(device_topics, qos);
-    } 
+    }
     // update list of topics
     topics.forEach(topic => {
       if (postfix == 'LWT' || postfix == 'availability') {
         console.log("STEP SET-AVAILABILITY " + topic.clientId + "=" + msg.payload.toLocaleLowerCase());
-       topic['availability'] = msg.payload.toLocaleLowerCase();
+        topic['availability'] = msg.payload.toLocaleLowerCase();
       }
       //console.log(topic);
       this._updateList(topic);
@@ -178,93 +178,131 @@ export class TopicListService {
   }
 
   private _getKeyFromObj(topic: Topic, obj: Object) {
-  Object.keys(obj).forEach(key => {
-    typeof obj[key] !== 'object' ?
-      topic[key] = obj[key] + '' :
-      obj[key] !== null ? 
-         this._getKeyFromObj(topic, obj[key]) :
-         noop;
+    Object.keys(obj).forEach(key => {
+      typeof obj[key] !== 'object' ?
+        topic[key] = obj[key] + '' :
+        obj[key] !== null ?
+          this._getKeyFromObj(topic, obj[key]) :
+          noop;
     });
   }
 
   private _updateList(vorlage: Topic) {
 
-  var found = this.topicMap.has(vorlage.clientId);
-    
-  var topic : Topic;
-  topic = found ? this.topicMap.get(vorlage.clientId) : new Topic;
-  
-  this._getKeyFromObj(topic, vorlage)
+    var found = this.topicMap.has(vorlage.clientId);
 
-  // new Topic ?
-  if (! found) {
-    this.topicMap.set(topic.clientId, topic);
-    Object.keys(topic).forEach(key => {
-      console.log("NEW-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
-      if (topic[key] === "genOnOff" || key === "POWER" || key === "POWER1" ) 
-        topic['onOffDevice'] = true;
-    });
+    var topic: Topic;
+    topic = found ? this.topicMap.get(vorlage.clientId) : new Topic;
 
-    if (topic['availability'] === 'online') {
-      this.mqttMessages$.next(
-        {
-          topic: 'cmnd/' + vorlage.clientId + '/status',
-          payload: '11'
-        });
+    this._getKeyFromObj(topic, vorlage)
+
+    // new Topic ?
+    if (!found) {
+      this.topicMap.set(topic.clientId, topic);
+      Object.keys(topic).forEach(key => {
+        console.log("NEW-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
+        if (topic[key] === "genOnOff" || key === "POWER" || key === "POWER1")
+          topic['onOffDevice'] = true;
+      });
+
+      if (topic['availability'] === 'online') {
+        this.mqttMessages$.next(
+          {
+            topic: 'cmnd/' + vorlage.clientId + '/status',
+            payload: '11'
+          });
+      }
     }
+
+    Object.keys(vorlage).forEach(key => {
+      console.log("UPDATE-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
+      if (key === "color_mode" && topic[key]==="xy") {
+        let color_rgb = ColorConverter.xyBriToRgb(topic["x"],topic["y"], topic["brightness"]);
+        topic['color_hex'] = "#"+
+            Math.min(color_rgb.r,255).toString(16).slice(0,2)+
+            Math.min(color_rgb.g,255).toString(16).slice(0,2)+
+            Math.min(color_rgb.b,255).toString(16).slice(0,2);
+        console.log("UPDATE-COLOR " + topic.clientId + " HEX="+topic['color_hex']);
+      }
+    });
+    this.topicArray$.next(Array.from(this.topicMap.values()));
   }
 
-  Object.keys(vorlage).forEach(key => {
-    console.log("UPDATE-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
-  });
-  this.topicArray$.next(Array.from(this.topicMap.values()));
-}
-
   private _getClientIdFromTopic(topic: string): string {
-  let result = this._stripPrefixesFromTopic(topic);
-  result = this._stripPostfixesFromTopic(result);
-  return result;
-}
+    let result = this._stripPrefixesFromTopic(topic);
+    result = this._stripPostfixesFromTopic(result);
+    return result;
+  }
   private _stripPrefixesFromTopic(topic: string): string {
-  let result = topic;
-  environment[this.selector].prefixes.forEach(prefix => {
-    prefix += '/';
-    result = String(result).replace(prefix, '');
-  });
-  return result;
-}
+    let result = topic;
+    environment[this.selector].prefixes.forEach(prefix => {
+      prefix += '/';
+      result = String(result).replace(prefix, '');
+    });
+    return result;
+  }
 
   private _stripPostfixesFromTopic(topic: string): string {
-  let result = topic;
-  let tokens = result.split('/');
-  let lastToken = tokens[tokens.length - 1];
-  environment[this.selector].postfixes.forEach(postfix => {
-    if (String(lastToken.toUpperCase).startsWith(postfix.toUpperCase)) {
-      result = result.replace('/' + lastToken, '');
-    }
-  });
-  return result;
-}
+    let result = topic;
+    let tokens = result.split('/');
+    let lastToken = tokens[tokens.length - 1];
+    environment[this.selector].postfixes.forEach(postfix => {
+      if (String(lastToken.toUpperCase).startsWith(postfix.toUpperCase)) {
+        result = result.replace('/' + lastToken, '');
+      }
+    });
+    return result;
+  }
 
   private _getPostfixFromTopic(topic: string): string {
-  var result;
-  environment[this.selector].postfixes.forEach(postfix => {
-    if (String(topic).endsWith(postfix)) {
-      //console.log('STEP topic.'+topic+'.endswith.'+postfix);
-      result = postfix;
-    }
-  });
-  return result;
-}
+    var result;
+    environment[this.selector].postfixes.forEach(postfix => {
+      if (String(topic).endsWith(postfix)) {
+        //console.log('STEP topic.'+topic+'.endswith.'+postfix);
+        result = postfix;
+      }
+    });
+    return result;
+  }
 
   private _on_error(err) {
-  console.log('topicListService ERROR ' + err);
-}
+    console.log('topicListService ERROR ' + err);
+  }
 
   private _on_close() {
-  console.log('topicListService COMPLETED !!');
-  this.connected = false;
-  this.topicMap.clear();
-  this.topicArray$.next(Array.from(this.topicMap.values()));
+    console.log('topicListService COMPLETED !!');
+    this.connected = false;
+    this.topicMap.clear();
+    this.topicArray$.next(Array.from(this.topicMap.values()));
+  }
 }
+
+class ColorConverter {
+  static xyBriToRgb(x, y, bri) {
+
+    console.log("ColorConverter.xyBriToRgb x=" + x + " y=" + y + " bri=" + bri);
+
+    function getReversedGammaCorrectedValue(value) {
+      return value <= 0.0031308 ? 12.92 * value : (1.0 + 0.055) * Math.pow(value, (1.0 / 2.4)) - 0.055;
+    }
+
+    let xy = {
+      x: x,
+      y: y
+    };
+
+    let z = 1.0 - xy.x - xy.y;
+    let Y = bri / 255;
+    let X = (Y / xy.y) * xy.x;
+    let Z = (Y / xy.y) * z;
+    let r = X * 1.656492 - Y * 0.354851 - Z * 0.255038;
+    let g = -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
+    let b = X * 0.051713 - Y * 0.121364 + Z * 1.011530;
+
+    r = getReversedGammaCorrectedValue(r);
+    g = getReversedGammaCorrectedValue(g);
+    b = getReversedGammaCorrectedValue(b);
+
+    return { r: parseInt((r * 255).toString()), g: parseInt((g * 255).toString()), b: parseInt((b * 255).toString()) };
+  }
 }
