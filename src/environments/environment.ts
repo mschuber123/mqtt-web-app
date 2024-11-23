@@ -27,7 +27,7 @@ export const environment = {
   HOME: {
     url: 'd3NzOi8vYWgubXNjaHViZXJ0MTIzLmRlOjcxMjMvbXF0dA==', 
     protocol: 'mqttv3.1',
-    topics: ['tele/#','stat/#','zigbee2mqtt/bridge/log'],
+    topics: ['tele/#','stat/#','zigbee2mqtt/bridge/devices/#'],
     qos: [0,0,0], // Eintrag pro Topic in topics !!
     prefixes: ['tele','stat','zigbee2mqtt'],
     prefixCmd: 'cmnd',
