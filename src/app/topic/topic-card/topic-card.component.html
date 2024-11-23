@@ -41,9 +41,12 @@
                         Luminosity
                     </div> 
                 [cpPresetColors]="['#fff', '#000', '#2889e9', '#e920e9', '#fff500', 'rgb(236,64,64)']" -->
-                    <mat-slider [min]="0" [max]="255" [tickInterval]="10" [step]="1" [thumbLabel]="true"
-                        (change)="onLuminosityChange($event)" (input)="onInputChange($event)" [ngModel]="topic.brightness">
-                    </mat-slider>
+            <br>
+            <mat-slider min="0" max="255" step="1">
+                <input matSliderThumb (input)="onInputChange($event)" 
+                (change)="onLuminosityChange($event)" [(ngModel)]="topic.brightness" >
+            </mat-slider>
+
                     <div class="row">
                       <div class="col-md-5">
                           <input [style.background]="topic.colorRGB" 

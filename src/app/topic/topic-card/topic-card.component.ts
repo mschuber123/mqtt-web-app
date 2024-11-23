@@ -64,7 +64,7 @@ export class TopicCardComponent implements OnInit {
     Object.keys(this.topic).forEach(key => {
       console.log("TOPIC-CARD ngOnInit "+this.topic.clientId+" ["+key+"]="+this.topic[key]);
       if (key == "color") {
-        let colorObj = this.topic[key];
+        let colorObj = this.topic[key] + '';
         Object.keys(colorObj).forEach(colKey => {
           this.topic['color.'+colKey] = colorObj[colKey];
           console.log("COLOR "+colKey+" = "+colorObj[colKey]);
@@ -76,7 +76,6 @@ export class TopicCardComponent implements OnInit {
         this.topic.colorRGB = this.color1;
       }
     });
-
   }
 
   public onInputChange(event: any) {
@@ -84,13 +83,12 @@ export class TopicCardComponent implements OnInit {
   }
   
   public onLuminosityChange(event:any){
-    console.log("This is emitted as the thumb slides "+event.value);
+    console.log("This is emitted as the thumb slides "+this.topic.brightness);
     let mtopic = new Topic();
     mtopic.clientId = this.topic.clientId;
     mtopic.cmd = 'set';
     mtopic.prefix = 'zigbee2mqtt';
-    // set brightness
-    mtopic.cmdPayload = '{"brightness":'+event.value+'}';
+    mtopic.cmdPayload = '{"brightness":'+this.topic.brightness+'}';
     this.topicCmd$.next(mtopic);
   }
 
