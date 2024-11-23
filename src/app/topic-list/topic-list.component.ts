@@ -13,7 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 
 export class TopicListComponent implements OnInit {
 
-  public topicArray: Array<any>;
+  public topicArray: Array<Topic>;
   public mqttConnectionState$: BehaviorSubject<CONNECT_STATE>;
   private connectedToListService : boolean = false;
   public breakpoint : number = 2;
