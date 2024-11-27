@@ -237,12 +237,14 @@ export class MqttService {
   }
 
   private mqtt_publish_receive(value: MqttMessage): MqttMessage {
-    console.log('mqtt_publish_receive: ' + value.topic + ' ' + value.payload);
+    let now = new Date;
+    console.log('RX-DATA: '+now.toISOString() +' '+value.topic + ' ' + value.payload);
     return value;
   }
 
   private mqtt_publish_send(value: MqttMessage) {
-    console.log('STEP mqtt_publish_send: ' + value.topic + ' ' + value.payload);
+    let now = new Date;
+    console.log('TX-DATA: '+now.toISOString() +' '+value.topic + ' ' + value.payload);
     let mqttPacket =
       this.mqttProtocol.getMqttPacket(MESSAGE_TYPE.PUBLISH);
     mqttPacket.messageIdentifier = ++this.nextMessageIdentifier;
@@ -268,7 +270,8 @@ export class MqttService {
   }
   private _ack_packet(mqttPacket: WireMessage) {
     if (this.sentMessages[mqttPacket.messageIdentifier] != undefined) {
-      console.log('ACK received' +
+      let now = new Date;
+      console.log('ACK received: '+now.toISOString() +
         ' type ' + mqttPacket.type +
         ' msgId ' + mqttPacket.messageIdentifier);
       delete this.sentMessages[mqttPacket.messageIdentifier];
@@ -282,7 +285,8 @@ export class MqttService {
     // check waitForAckTimers
     for (var key in this.sentMessages) {
       if (++this.sentMessages[key].waitForAckTimer > 1) {
-        console.log('ERROR TIMEOUT waitForAck' +
+        let now = new Date;
+        console.log('ERROR TIMEOUT waitForAck '+now.toISOString()+
           ' type ' + this.sentMessages[key].type +
           ' msgId ' + this.sentMessages[key].messageIdentifier);
         delete this.sentMessages[key];
@@ -291,18 +295,21 @@ export class MqttService {
   }
   private _on_timer_expired(value: string) {
     if (this.connectionState == CONNECT_STATE.CONNECTED) {
-      console.log('ERROR Connection timed out!!');
+      let now = new Date;
+      console.log('ERROR Connection timed out!! '+now.toISOString());
     }
   }
   private _on_ws_error(err) {
-    console.log('MqttService on_error..');
+    let now = new Date;
+    console.log('MqttService on_error.. '+now.toISOString()+' '+err);
     this.connectionState = CONNECT_STATE.FAILED;
     this.mqttConnectionState.next(this.connectionState);    
     console.log(err);
   }
 
   private _on_ws_complete() {
-    console.log('MqttService _on_ws_complete..');
+    let now = new Date;
+    console.log('MqttService _on_ws_complete.. '+now.toISOString());
     this.connectionState = CONNECT_STATE.DISCONNECTED;
     this.mqttConnectionState.next(this.connectionState);    
     this.wsMessages$.unsubscribe();
