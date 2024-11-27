@@ -21,6 +21,8 @@ import { ColorPickerModule } from 'ngx-color-picker';
 
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatListModule } from '@angular/material/list';
 
 import { RouterModule, Routes } from '@angular/router';
 
@@ -28,6 +30,7 @@ import { TopicCardComponent } from './topic/topic-card/topic-card.component';
 import { AppComponent } from './app.component';
 import { TopicListComponent } from './topic-list/topic-list.component';
 import { LoginFormComponent } from './login-form/login-form.component';
+import { TopicCardDetailsComponent } from './topic/topic-card/topic-card-details/topic-card-details.component';
 
 const appRoutes:Routes = [
   {
@@ -46,6 +49,7 @@ const appRoutes:Routes = [
     TopicCardComponent,
     TopicListComponent,
     LoginFormComponent,
+    TopicCardDetailsComponent,
   ],
   imports: [
  
@@ -61,6 +65,8 @@ const appRoutes:Routes = [
     MatSliderModule,
     MatGridListModule,
     MatButtonToggleModule,
+    MatListModule,
+    MatBottomSheetModule,
     ColorPickerModule
   ],
   providers: [
