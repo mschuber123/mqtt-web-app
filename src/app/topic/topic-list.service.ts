@@ -216,15 +216,17 @@ export class TopicListService {
 
     Object.keys(vorlage).forEach(key => {
       console.log("UPDATE-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
-      if (key === "color_mode" && topic[key]==="xy") {
-        let color_rgb = ColorConverter.xyBriToRgb(topic["x"],topic["y"], topic["brightness"]);
-        topic['color_hex'] = "#"+
-            Math.min(color_rgb.r,255).toString(16).slice(0,2)+
-            Math.min(color_rgb.g,255).toString(16).slice(0,2)+
-            Math.min(color_rgb.b,255).toString(16).slice(0,2);
-        console.log("UPDATE-COLOR " + topic.clientId + " HEX="+topic['color_hex']);
-      }
     });
+    if (topic['availability'] === 'online' &&
+        topic["color_mode"]==="xy") {
+      let color_rgb = ColorConverter.xyBriToRgb(topic["x"],topic["y"], topic["brightness"]);
+      topic['color_hex'] = "#"+
+          Math.min(color_rgb.r,255).toString(16).slice(0,2)+
+          Math.min(color_rgb.g,255).toString(16).slice(0,2)+
+          Math.min(color_rgb.b,255).toString(16).slice(0,2);
+      console.log("UPDATE-COLOR " + topic.clientId + " RGB("+color_rgb.r+','+color_rgb.g+','+color_rgb.b+')');
+      console.log("UPDATE-COLOR " + topic.clientId + " HEX="+topic['color_hex']);
+    }
     this.topicArray$.next(Array.from(this.topicMap.values()));
   }
 
