@@ -17,30 +17,10 @@
                 <mat-checkbox [checked]="topic.POWER==='ON'" (click)="powerClicked()" class="example-margin">POWER</mat-checkbox> 
             </mat-grid-tile>
         </mat-grid-list>
-        <mat-grid-list *ngIf="topic.state && topic.availability==='online'" cols="1" rowHeight="40px">
-            <mat-grid-tile [style.border-right]="'1px dashed #ddd'">
+        <mat-grid-list *ngIf="topic.state && topic.availability==='online'" cols="2" rowHeight="40px">
+            <mat-grid-tile [style.border-right]="'1px dashed #ddd'" colspan="2">
                 <mat-checkbox [checked]="topic.state==='ON'" (click)="stateClicked()" class="example-margin">STATE</mat-checkbox> 
             </mat-grid-tile>
-<!--            <div class="control-operation-params">
-                <div class="control-operation-param control-operation-param-no-grow">
-                    <div class="control-operation-param-label">
-                        <mat-icon class="app-mat-icon-flipped" aria-label="light bulb icon">
-                            wb_incandescent
-                        </mat-icon>
-                        On/Off
-                    </div>         -->
-                <!--    <mat-slide-toggle [color]="'accent'" [labelPosition]="'before'"
-                        (change)="onOnOffToggle($event)" [(ngModel)]="onOff" aria-label="on/off switch">
-                    </mat-slide-toggle> -->
-<!--                </div>   -->
-            <!--    <div class="control-operation-param">
-                    <div class="control-operation-param-label">
-                        <mat-icon aria-label="light bulb icon">
-                            wb_sunny
-                        </mat-icon>
-                        Luminosity
-                    </div> 
-                [cpPresetColors]="['#fff', '#000', '#2889e9', '#e920e9', '#fff500', 'rgb(236,64,64)']" -->
             <br>
             <mat-slider min="0" max="255" step="1">
                 <input matSliderThumb (input)="onInputChange($event)" 
@@ -53,42 +33,15 @@
                            [cpAlphaChannel]="'disabled'"
                            [cpPosition]="'top-right'"
                            [cpHeight]="'140px'"
-                           [(colorPicker)]="color1" [cpOutputFormat]="'hex'" 
+                           [(colorPicker)]="topic.color_hex" [cpOutputFormat]="'hex'" 
                            (colorPickerOpen)="onEventColorPicker('colorPickerOpen', $event)"
                            (colorPickerClose)="onEventColorPicker('colorPickerClose', $event)" (cpInputChange)="onEventLog('cpInputChange', $event)"/>
                         </div>
                     </div>
-                  
-            <!--        <mat-slider 
-                        (change)="onLuminosityChange($event)" [(ngModel)]="luminosityPercent">
-                    </mat-slider> -->
-             <!--   </div>
-                <div class="control-operation-param control-operation-param-color">
-                    <div class="control-operation-param-label">
-                        <mat-icon aria-label="light bulb icon">
-                            color_lens
-                        </mat-icon>
-                        Color
-                    </div>
-                    <mat-slider class="control-color-slider" [min]="0" [max]="primaryColorPositionMax"
-                        [step]="1" [thumbLabel]="true" [displayWith]="primaryColorThumbDisplayer"
-                        (input)="onPrimaryColorDrag($event)" (change)="onPrimaryColorChange($event)"
-                        [(ngModel)]="primaryColorPosition">
-                    </mat-slider>
-                    <mat-button-toggle-group [(ngModel)]="selectedCustomColor"
-                        (change)="onCustomColorChange($event)">
-                        <mat-button-toggle *ngFor="let color of customColors" [value]="color"
-                            [matTooltip]="color.name"
-                            [style.background-color]="colorRgbaToCssRgba(color.rgba)"
-                            [style.border-color]="selectedCustomColor === color ? '#ffd740' : 'rgba(0, 0, 0, 0.12)'">
-                        </mat-button-toggle>
-                    </mat-button-toggle-group>
-                </div> 
-            </div> -->
         </mat-grid-list>
 
     </mat-card-content>
     <mat-card-actions>
-        <button mat-button>Details</button>
+        <button mat-button (click)="showBottomSheet()">Details</button>
     </mat-card-actions>
 </mat-card>

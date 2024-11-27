@@ -1,15 +1,19 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { TopicListService, Topic } from '../topic-list.service';
+import { TopicCardDetailsComponent } from './topic-card-details/topic-card-details.component';
 
 import { ViewContainerRef } from '@angular/core';
 import { ColorPickerService, Cmyk } from 'ngx-color-picker';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet'; 
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
 @Component({
   selector: 'app-topic-card',
   templateUrl: './topic-card.component.html',
   styleUrls: ['./topic-card.component.css']
 })
+
 export class TopicCardComponent implements OnInit {
 
   @Input('topic') topic : any;
@@ -18,6 +22,7 @@ export class TopicCardComponent implements OnInit {
   step = 1;
   min = 1;
   thumbLabel = true;
+  detailsPanelOpenState = false;
 
   // ColorPicker stuff
   public toggle: boolean = false;
@@ -56,7 +61,8 @@ export class TopicCardComponent implements OnInit {
 
   constructor(private topicListService: TopicListService,
     public vcRef: ViewContainerRef,
-    private cpService: ColorPickerService) {
+    private cpService: ColorPickerService,
+    private bottomSheet: MatBottomSheet) {
     this.topicCmd$ = topicListService.topicCmd$;
   }
 
@@ -70,6 +76,16 @@ export class TopicCardComponent implements OnInit {
           console.log("COLOR "+colKey+" = "+colorObj[colKey]);
         });
       }
+    });
+  }
+
+  showBottomSheet() {
+    const keyValueArray = [];
+    Object.keys(this.topic).forEach(myKey => {
+      keyValueArray.push({ key : myKey, value : this.topic[myKey] });
+    });
+    const bottomSheetRef = this.bottomSheet.open(TopicCardDetailsComponent, {
+      data: { id: this.topic.clientId, keyValues: keyValueArray }
     });
   }
 
@@ -157,4 +173,6 @@ export class TopicCardComponent implements OnInit {
     }
     return '';
   }
+
+
 }
