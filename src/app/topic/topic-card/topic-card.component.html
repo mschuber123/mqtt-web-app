@@ -17,17 +17,17 @@
                 <mat-checkbox [checked]="topic.POWER==='ON'" (click)="powerClicked()" class="example-margin">POWER</mat-checkbox> 
             </mat-grid-tile>
         </mat-grid-list>
-        <mat-grid-list *ngIf="topic.state && topic.availability==='online'" cols="2" rowHeight="40px">
+        <mat-grid-list *ngIf="topic.genOnOff && topic.availability==='online'" cols="2" rowHeight="40px">
             <mat-grid-tile [style.border-right]="'1px dashed #ddd'" colspan="2">
                 <mat-checkbox [checked]="topic.state==='ON'" (click)="stateClicked()" class="example-margin">STATE</mat-checkbox> 
             </mat-grid-tile>
             <br>
-            <mat-slider min="0" max="255" step="1">
-                <input matSliderThumb (input)="onInputChange($event)" 
+            <mat-slider min="0" max="255" step="1" *ngIf="topic.genLevelCtrl">
+                <input matSliderThumb (input)="onInputLuminosityChange($event)" 
                 (change)="onLuminosityChange($event)" [(ngModel)]="topic.brightness" >
             </mat-slider>
 
-                    <div class="row">
+                    <div class="row" *ngIf="topic.lightingColorCtrl" >
                       <div class="col-md-5">
                           <input [style.background]="topic.color_hex" 
                            [cpAlphaChannel]="'disabled'"
@@ -39,7 +39,30 @@
                         </div>
                     </div>
         </mat-grid-list>
-
+        <mat-grid-list *ngIf="topic.closuresWindowCovering && topic.availability==='online'" rows="3" cols="2" rowHeight="30px">
+            <mat-grid-tile rowspan="1" colspan="1"></mat-grid-tile>
+            <mat-grid-tile rowspan="1" colspan="1">
+                <button mat-raised-button color="topic['shutter_up_color']" (click)="shutterUpClicked()"><mat-icon>arrow_upward</mat-icon></button>
+                <br>
+                <button color="gray" (click)="shutterStopClicked()"><mat-icon>stop</mat-icon></button>
+                <br>
+                <button mat-raised-button color="topic['shutter_down_color']" (click)="shutterDownClicked()"><mat-icon>arrow_downward</mat-icon></button>
+            </mat-grid-tile>
+            <mat-grid-tile rowspan="2" colspan="1" [style.background]="'lightgreen'">
+            <mat-slider class="vertical-slider" min="0" max="100" step="1" *ngIf="topic.position">
+                <input matSliderThumb (input)="onInputWindowCoveringChange($event)" 
+                (change)="onWindowCoveringChange($event)" [(ngModel)]="topic.position" >
+            </mat-slider>
+        </mat-grid-tile>
+        <mat-grid-tile rowspan="2" colspan="1">
+            <mat-list>
+                <mat-list-item *ngIf="topic.state">
+                  <span matListItemTitle>state</span>
+                  <span matListItemLine>{{topic.position}} - {{topic.state}}</span>
+                </mat-list-item>
+              </mat-list>
+        </mat-grid-tile>
+    </mat-grid-list>
     </mat-card-content>
     <mat-card-actions>
         <button mat-button (click)="showBottomSheet()">Details</button>

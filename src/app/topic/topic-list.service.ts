@@ -177,12 +177,12 @@ export class TopicListService {
     })
   }
 
-  private _getKeyFromObj(topic: Topic, obj: Object) {
+  private _getKeyFromObj(topic: Topic, obj: Object, prefix: String = '') {
     Object.keys(obj).forEach(key => {
       typeof obj[key] !== 'object' ?
-        topic[key] = obj[key] + '' :
+        topic[prefix+key] = obj[key] + '' :
         obj[key] !== null ?
-          this._getKeyFromObj(topic, obj[key]) :
+          this._getKeyFromObj(topic, obj[key], key+'_') :
           noop;
     });
   }
@@ -202,7 +202,13 @@ export class TopicListService {
       Object.keys(topic).forEach(key => {
         console.log("NEW-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
         if (topic[key] === "genOnOff" || key === "POWER" || key === "POWER1")
-          topic['onOffDevice'] = true;
+          topic['genOnOff'] = true;
+        if (topic[key] === "lightingColorCtrl")
+          topic['lightingColorCtrl'] = true;
+        if (topic[key] === "genLevelCtrl")
+          topic['genLevelCtrl'] = true;
+        if (topic[key] === "closuresWindowCovering")
+          topic['closuresWindowCovering'] = true;
       });
 
       if (topic['availability'] === 'online') {
@@ -217,15 +223,31 @@ export class TopicListService {
     Object.keys(vorlage).forEach(key => {
       console.log("UPDATE-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
     });
-    if (topic['availability'] === 'online' &&
-        topic["color_mode"]==="xy") {
-      let color_rgb = ColorConverter.xyBriToRgb(topic["x"],topic["y"], topic["brightness"]);
+    if (topic['availability'] === 'online' && topic['color_mode'] == "xy") {
+      let color_rgb = ColorConverter.xyBriToRgb(topic["color_x"],topic["color_y"], topic["brightness"]);
       topic['color_hex'] = "#"+
           Math.min(color_rgb.r,255).toString(16).slice(0,2)+
           Math.min(color_rgb.g,255).toString(16).slice(0,2)+
           Math.min(color_rgb.b,255).toString(16).slice(0,2);
       console.log("UPDATE-COLOR " + topic.clientId + " RGB("+color_rgb.r+','+color_rgb.g+','+color_rgb.b+')');
       console.log("UPDATE-COLOR " + topic.clientId + " HEX="+topic['color_hex']);
+      if (topic['position'] !== undefined) {
+        if (topic['last_position'] !== undefined) {
+          // shutter position 100=OPEN 0=CLOSE
+          if (topic['position'] > topic['last_position']) {
+            // shutter rolling up ?
+            topic['shutter_up_color'] = "accent";
+            topic['shutter_down_color'] = "gray";
+          } else if (topic['position'] < topic['last_position']) {
+            topic['shutter_up_color'] = "gray";
+            topic['shutter_down_color'] = "accent";
+          } else {
+            topic['shutter_up_color'] = "gray";
+            topic['shutter_down_color'] = "gray";
+          }
+        }
+        topic['last_position'] = topic['position'];
+      }
     }
     this.topicArray$.next(Array.from(this.topicMap.values()));
   }

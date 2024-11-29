@@ -89,18 +89,26 @@ export class TopicCardComponent implements OnInit {
     });
   }
 
-  public onInputChange(event: any) {
-    console.log("This is emitted as the thumb slides "+event.value);
+  public onInputLuminosityChange(event: any) {
+    console.log("This is emitted asLuminosity slides "+this.topic.brightness);
   }
   
   public onLuminosityChange(event:any){
-    console.log("This is emitted as the thumb slides "+this.topic.brightness);
+    console.log("This is emitted as Luminosity changed "+this.topic.brightness);
     let mtopic = new Topic();
     mtopic.clientId = this.topic.clientId;
     mtopic.cmd = 'set';
     mtopic.prefix = 'zigbee2mqtt';
     mtopic.cmdPayload = '{"brightness":'+this.topic.brightness+'}';
     this.topicCmd$.next(mtopic);
+  }
+
+  public onInputWindowCoveringChange(event: any) {
+    console.log("This is emitted as WindowCovering slides "+this.topic.position);
+  }
+  
+  public onWindowCoveringChange(event:any){
+    console.log("This is emitted as WindowCovering changed "+this.topic.position);
   }
 
   public stateClicked() {
@@ -174,5 +182,36 @@ export class TopicCardComponent implements OnInit {
     return '';
   }
 
+  public shutterUpClicked() {
+    console.log('TopicCardComponent '+this.topic.clientId+' shutterUp-Clicked...');
+    let mtopic = new Topic();
+    mtopic.clientId = this.topic.clientId;
+    mtopic.cmd = 'set/state';
+    mtopic.prefix = 'zigbee2mqtt';
+    // set brightness
+    mtopic.cmdPayload = 'open';
+    this.topicCmd$.next(mtopic);
+  }
 
+  public shutterDownClicked() {
+    console.log('TopicCardComponent '+this.topic.clientId+' shutterUp-Clicked...');
+    let mtopic = new Topic();
+    mtopic.clientId = this.topic.clientId;
+    mtopic.cmd = 'set/state';
+    mtopic.prefix = 'zigbee2mqtt';
+    // set brightness
+    mtopic.cmdPayload = 'close';
+    this.topicCmd$.next(mtopic);
+  }
+  
+  public shutterStopClicked() {
+    console.log('TopicCardComponent '+this.topic.clientId+' shutterUp-Clicked...');
+    let mtopic = new Topic();
+    mtopic.clientId = this.topic.clientId;
+    mtopic.cmd = 'set/state';
+    mtopic.prefix = 'zigbee2mqtt';
+    // set brightness
+    mtopic.cmdPayload = 'stop';
+    this.topicCmd$.next(mtopic);
+  }
 }

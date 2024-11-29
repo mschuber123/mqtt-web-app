@@ -23,6 +23,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon'
 
 import { RouterModule, Routes } from '@angular/router';
 
@@ -66,6 +67,7 @@ const appRoutes:Routes = [
     MatGridListModule,
     MatButtonToggleModule,
     MatListModule,
+    MatIconModule,
     MatBottomSheetModule,
     ColorPickerModule
   ],
