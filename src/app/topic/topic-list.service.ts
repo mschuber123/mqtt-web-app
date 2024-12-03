@@ -180,9 +180,9 @@ export class TopicListService {
   private _getKeyFromObj(topic: Topic, obj: Object, prefix: String = '') {
     Object.keys(obj).forEach(key => {
       typeof obj[key] !== 'object' ?
-        topic[prefix+key] = obj[key] + '' :
+        topic[prefix + key] = obj[key] + '' :
         obj[key] !== null ?
-          this._getKeyFromObj(topic, obj[key], key+'_') :
+          this._getKeyFromObj(topic, obj[key], key + '_') :
           noop;
     });
   }
@@ -220,34 +220,49 @@ export class TopicListService {
       }
     }
 
+    let shutterPositionChanged : Boolean = false;
+
     Object.keys(vorlage).forEach(key => {
       console.log("UPDATE-TOPIC " + topic.clientId + "[" + key + "]=" + topic[key]);
+      if (key === 'position') shutterPositionChanged = true;
     });
     if (topic['availability'] === 'online' && topic['color_mode'] == "xy") {
-      let color_rgb = ColorConverter.xyBriToRgb(topic["color_x"],topic["color_y"], topic["brightness"]);
-      topic['color_hex'] = "#"+
-          Math.min(color_rgb.r,255).toString(16).slice(0,2)+
-          Math.min(color_rgb.g,255).toString(16).slice(0,2)+
-          Math.min(color_rgb.b,255).toString(16).slice(0,2);
-      console.log("UPDATE-COLOR " + topic.clientId + " RGB("+color_rgb.r+','+color_rgb.g+','+color_rgb.b+')');
-      console.log("UPDATE-COLOR " + topic.clientId + " HEX="+topic['color_hex']);
-      if (topic['position'] !== undefined) {
-        if (topic['last_position'] !== undefined) {
-          // shutter position 100=OPEN 0=CLOSE
-          if (topic['position'] > topic['last_position']) {
-            // shutter rolling up ?
-            topic['shutter_up_color'] = "accent";
-            topic['shutter_down_color'] = "gray";
-          } else if (topic['position'] < topic['last_position']) {
-            topic['shutter_up_color'] = "gray";
-            topic['shutter_down_color'] = "accent";
-          } else {
-            topic['shutter_up_color'] = "gray";
-            topic['shutter_down_color'] = "gray";
-          }
+      let color_rgb = ColorConverter.xyBriToRgb(topic["color_x"], topic["color_y"], topic["brightness"]);
+      topic['color_hex'] = "#" +
+        Math.min(color_rgb.r, 255).toString(16).slice(0, 2) +
+        Math.min(color_rgb.g, 255).toString(16).slice(0, 2) +
+        Math.min(color_rgb.b, 255).toString(16).slice(0, 2);
+      console.log("UPDATE-COLOR " + topic.clientId + " RGB(" + color_rgb.r + ',' + color_rgb.g + ',' + color_rgb.b + ')');
+      console.log("UPDATE-COLOR " + topic.clientId + " HEX=" + topic['color_hex']);
+    }
+    if (shutterPositionChanged) {
+      console.log("shutterPositionChanged ...pos="+topic['position']+" lastPos="+topic['last_position'])
+      if (topic['last_position'] !== undefined ) {
+        // shutter position 100=OPEN 0=CLOSE
+        if (topic['position'] > topic['last_position']) {
+          // shutter rolling up ?
+          console.log("UPDATE-SHUTTER " + topic.clientId + " rolling up!");
+          topic['shutter_up_color'] = "accent";
+          topic['shutter_down_color'] = "gray";
+        } else if (topic['position'] < topic['last_position']) {
+          console.log("UPDATE-SHUTTER " + topic.clientId + " rolling down!");
+          topic['shutter_up_color'] = "gray";
+          topic['shutter_down_color'] = "accent";
+        } else {
+          console.log("UPDATE-SHUTTER " + topic.clientId + " NOT rolling!");
+          topic['shutter_up_color'] = "gray";
+          topic['shutter_down_color'] = "gray";
         }
-        topic['last_position'] = topic['position'];
       }
+      setTimeout(() => {
+        console.log("ShutterPositionChanged-Timeout 20 sec..."+ topic.clientId);
+        if (topic['last_position'] == topic['position']) {
+          topic['shutter_up_color'] = "gray";
+          topic['shutter_down_color'] = "gray";
+          this.topicArray$.next(Array.from(this.topicMap.values()));
+        }
+      }, 20000);
+      topic['last_position'] = topic['position'];
     }
     this.topicArray$.next(Array.from(this.topicMap.values()));
   }

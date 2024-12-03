@@ -184,6 +184,7 @@ export class TopicCardComponent implements OnInit {
 
   public shutterUpClicked() {
     console.log('TopicCardComponent '+this.topic.clientId+' shutterUp-Clicked...');
+    //this.topic['shutter_up_color'] = "accent";
     let mtopic = new Topic();
     mtopic.clientId = this.topic.clientId;
     mtopic.cmd = 'set/state';
@@ -194,7 +195,8 @@ export class TopicCardComponent implements OnInit {
   }
 
   public shutterDownClicked() {
-    console.log('TopicCardComponent '+this.topic.clientId+' shutterUp-Clicked...');
+    console.log('TopicCardComponent '+this.topic.clientId+' shutterDown-Clicked...');
+    //this.topic['shutter_down_color'] = "accent";
     let mtopic = new Topic();
     mtopic.clientId = this.topic.clientId;
     mtopic.cmd = 'set/state';
@@ -205,7 +207,9 @@ export class TopicCardComponent implements OnInit {
   }
   
   public shutterStopClicked() {
-    console.log('TopicCardComponent '+this.topic.clientId+' shutterUp-Clicked...');
+    console.log('TopicCardComponent '+this.topic.clientId+' shutterStop-Clicked...');
+    this.topic['shutter_up_color'] = "gray";
+    this.topic['shutter_down_color'] = "gray";
     let mtopic = new Topic();
     mtopic.clientId = this.topic.clientId;
     mtopic.cmd = 'set/state';
